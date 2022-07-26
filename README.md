@@ -94,16 +94,65 @@ The architecture of the network can be seen as a chain of blocks that exchange m
 ### Cloud Services
 
 As already mentioned the cloud service provider used is Amazon Web Services. In particular the services used are:
-- ***Iot Core***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/97c209ca505f2958db30a42135afab5c-e87a3a6af0fa6e7b59029cb17597d326.svg" alt="iot_core" width="50" align="right"/><br> whose main role is to work as a mqtt broker where messages are published. Moreover, the rule engine of the service allowed us to directly act on the incoming messages, saving them on the DB and invoking functions when a new message arrives.
-- ***DynamoDB***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/bd96e70e103d25f4057afc76f9d3d180-87862c68693445999110bbd6a467ce88.svg" alt="dynamoDB_logo" width="50" align="right"/><br> database where every data received from the board is stored. In particular it has 2 tables to store the information received and 1 used to keep track of the connections to the websocket service.
-- ***Lambda***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/945f3fc449518a73b9f5f32868db466c-926961f91b072604c42b7f39ce2eaf1c.svg" alt="lambda_logo" width="50" align="right"/><br> that allows us to write the functions for several purposes like: interact with the database, handle the websocket (connection, disconnection and new information on the status). In particular it has 1 function to read the data of the sensors.
-- ***API Gateway***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/fb0cde6228b21d89ec222b45efec54e7-0856e92285f4e7ed254b2588d1fe1829.svg" alt="api_gateway" width="50" align="right"/><br> to create and publish both the REST API and the WebSocket API
-- ***AWS Amplify***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/9da5a168cf8194c8ee5ed192a443d563-674375b53bc8ae94f48cfdb5c81e8363.svg" alt="amplify" width="50" align="right"/><br> to provide the web application’s static content to the user 
+- ***Iot Core***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/97c209ca505f2958db30a42135afab5c-e87a3a6af0fa6e7b59029cb17597d326.svg" alt="iot_core" width="50" align="right"/><br> Whose main role is to work as a mqtt broker where messages are published. Moreover, the rule engine of the service allowed us to directly act on the incoming messages, saving them on the DB and invoking functions when a new message arrives.
+- ***DynamoDB***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/bd96e70e103d25f4057afc76f9d3d180-87862c68693445999110bbd6a467ce88.svg" alt="dynamoDB_logo" width="50" align="right"/><br> Database where every data received from the board is stored. In particular it has 2 attributes to store the information received.
+- ***Lambda***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/945f3fc449518a73b9f5f32868db466c-926961f91b072604c42b7f39ce2eaf1c.svg" alt="lambda_logo" width="50" align="right"/><br> That allows us to write the functions for several purposes like: interact with the database, handle the websocket (connection, disconnection and new information on the status). In particular it has 1 function to read the data of the sensors.
+- ***API Gateway***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/fb0cde6228b21d89ec222b45efec54e7-0856e92285f4e7ed254b2588d1fe1829.svg" alt="api_gateway" width="50" align="right"/><br> To create and publish both the REST API and the WebSocket API
+- ***AWS Amplify***: <img src="https://d2q66yyjeovezo.cloudfront.net/icon/9da5a168cf8194c8ee5ed192a443d563-674375b53bc8ae94f48cfdb5c81e8363.svg" alt="amplify" width="50" align="right"/><br> To provide the web application’s static content to the user 
 
-### System photos
-<img src="fritzing.jpeg" width="350"/><br> 
-<img src="structure1.jpg" width="350"/><br> 
-<img src="structure2.jpg" width="350"/><br> 
+
+## Walkthrough
+
+These are all the steps you need to do to run and enjoy the system.
+- ### Cloud level
+  - DynamoDB:<br>
+  create a table with the name “TempHum” that will have a "Timestamp" and two attributes: Temperature and Humidity.
+ 
+  - IoT Core:<br>
+    Set up a new thing clicking on button “Connect Device” on the main page of AWS IoT. Use “iRefresher” as the name of the thing and finish the settings. At the end of the configuration, you should download all the certificates relative to the device and they must be used for the transparent_bridge.py(every information is contained in the bridge). Then policy must be edited in a way that allows it to be connected to every broker (*).
+  
+  - Lambda:<br>
+  Create one lambda function that will be triggered from the API when we want to upload the recent values on the WEB Dashboard.
+     
+    
+  - API Gateway:<br>
+  Click on the button “Create API” and select the option “REST API”. In the “API name” field type “individualAPI” and select “Edge optimized” in the “Endpoint Type” drop-down. Once the API is created, in the left nav select “Resources'' and with the “/” resource selected click “Create Method” from the "Action" drop-down menu. Select POST from the new drop-down menu and then click on the checkmark; select “lambda function” for the “integration type” and type “getDB” into the “Lambda Function” field. With the newly created POST method selected, select “Enable CORS” from the “Action” drop-down menu. Then in the "Actions" drop-down list select "Deploy API"; select "[New Stage]" in the "Deployment stage" drop-down list, enter “dev” for the "Stage Name" and click on “Deploy”. Copy and save the URL next to "Invoke URL" (you will need it later). 
+  
+  - AWS Amplify:<br>
+   Click “get started” under “Host your web app”, select “Deploy without Git Provider” and click on “continue”. In the “App name” field type “iRefresher”, for the “Environment” name type “dev” and select the option “Drag and Drop”. Then compress the code provided in the WebApp folder and upload it. Now you can open the web dashboard from the link provided by AWS Amplify.
+  
+  
+- ### IoT device level
+  - First of all, you need to clone this repository to your machine.
+
+  - Clone the [repository](https://github.com/eclipse/mosquitto.rsmb) of mosquitto.rsmb and follow the guide in the link to set up the system correctly. Then go to the folder mosquitto.rsmb/rsmb/src and run the command:
+
+    ```
+    ./broker_mqtts config.conf
+    ```
+  - copy the file “transparent_bridge.py” provided in this repository inside the folder created during the IoT core setup (the “aws” folder in the previous image). Then run the following command inside this folder:
+
+    ```
+    python3 transparent_bridge.py
+    ```
+  - Connect all the sensors and actuators to the board using the photos below. <br>
+  
+    <img src="fritzing.jpeg" width="350"/><br> 
+    <img src="structure1.jpg" width="350"/><br> 
+    <img src="structure2.jpg" width="350"/><br> 
+
+  - Clone the [RIOT repository](https://github.com/RIOT-OS/RIOT) under the “Riot Code” folder of this repository. Connect the board to the machine and run the following commands:
+
+    ```
+    cd
+    sudo ./RIOT/dist/tools/tapsetup/tapsetup
+    sudo ip a a fec0:affe::1/64 dev tapbr0
+    ```
+    then go inside the “Riot Code” folder and run the command:
+
+    ```
+    make flash term
+    ```
 
 
 
