@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>iRefresher</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js"></script>
+</head>
+
+<body onload="init()">
+    <h1>iRefresher</h1>
+    <p>Project for the IoT A.Y. 2021/2022 at the University "La Sapienza". The project is an implementation of an air nebulizer that can be used in every work environment.
+        If the temperature/humidity level go in a negative range the system will react activating the water pump that will be directly connected to a water nebulizer.
+        Here is the link to the 
+        <a href="https://github.com/carugno/IoT-Individual2022.git">GitHub Repository</a></p>
+    <p>Number of measurements: <span id="counter">0</span></p>
+    <p>Number of times the system reacted: <span id="correctExecutions">0</span></p>
+    <p>Average temperature measured: <span id="avgTemp">0</span></p>
+    <p>Average humidity measured: <span id="avgHum">0</span></p>
+
+    <div class="container">
+        <div class="chart1">
+            <h3>Temperature </h3>
+            <canvas id="Temperature" style="width:100%;max-width:600px"></canvas>
+        </div>
+        <div class="chart2">
+            <h3>Humidity</h3>
+            <canvas id="Humidity" style="width:100%;max-width:600px"></canvas>
+        </div>
+    </div>
+</body>
+</html>
