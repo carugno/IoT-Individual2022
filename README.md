@@ -1,5 +1,5 @@
 # iRefresher
-<a href="https://www.linkedin.com/in/carlo-carugno-b50331142/">This</a> is the repository for the Internet of Thing 2021/2022 of the Master in Computer Science, La Sapienza Università di Roma
+<a href="https://github.com/carugno/IoT-Individual2022.git">This</a> is the repository for the Internet of Thing 2021/2022 of the Master in Computer Science, La Sapienza Università di Roma.
 
 # General Description
 This system is projected to help keeping the work environment always fresh by giving nebulized water through the air. By monitoring the environment, it’s possible to seek the conditions in which user is working. In particular, the system measures room temperature and humidity. By knowing that, the system can decide to activate or not the relay connected to the water pump and spread the nebulized water. We are assuming that, of course, the water pump is connected to a water nebulizer that we don't have.
